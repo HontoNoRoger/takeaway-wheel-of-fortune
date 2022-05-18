@@ -2,9 +2,10 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
-        <script type="text/javascript" src="{{ url_for('static', filename='js/Winwheel.js') }}"></script>
+        <script type="text/javascript" src="static/js/Winwheel.js"></script>
+        <script src="config/config.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/latest/TweenMax.min.js"></script>
-        <link rel="stylesheet" href="{{ url_for('static', filename= 'css/style.css') }}" />
+        <link rel="stylesheet" href="static/css/style.css" />
         <title>Takeaway Wheel Of Fortune</title>
     </head>
     <body>
@@ -27,7 +28,7 @@
                 <tr>
                     <td>
                         <div class="spin_action">
-                            <img id="spin_button" src="/static/images/spin_off.png" alt="Spin" onClick="startSpin();" />
+                            <img id="spin_button" src="static/images/spin_off.png" alt="Spin" onClick="startSpin();" />
                             <br /><br />
                             &nbsp;&nbsp;<a href="#" onClick="resetWheel(); return false;">Play Again</a><br />(reset)
                         </div>
@@ -37,18 +38,22 @@
         </div>
     </body>
     <script>
+        let segments = [];
+        for (let meal in config.meals) {
+            let fillStyle = ['eae56f', '89f26e', '7de6ef', 'e7706f'][meal % 4];
+            segments.push ({
+                'fillStyle' : '#' + fillStyle,
+                'text' : config.meals[meal]
+            })
+        }
+
         // Create new wheel object specifying the parameters at creation time.
         let theWheel = new Winwheel({
-            'numSegments'  : {{ meals | length }},     // Specify number of segments.
-            'outerRadius'  : 212,   // Set outer radius so wheel fits inside the background.
-            'textFontSize' : 28,    // Set font size as desired.
-            'segments'     :        // Define segments including colour and text.
-            [
-                {%- for meal in meals %}
-                {'fillStyle' : '#{{ ['eae56f', '89f26e', '7de6ef', 'e7706f'][loop.index % 4] }}', 'text' : '{{meal|e}}' },
-                {%- endfor  %}
-            ],
-            'animation' :           // Specify the animation to use.
+            'numSegments'  : config.meals.length,  // Specify number of segments.
+            'outerRadius'  : 212,                  // Set outer radius so wheel fits inside the background.
+            'textFontSize' : 28,                   // Set font size as desired.
+            'segments'     : segments,             // Define segments including colour and text.
+            'animation' :                          // Specify the animation to use.
             {
                 'type'     : 'spinToStop',
                 'duration' : 5,     // Duration in seconds.
@@ -58,7 +63,7 @@
         });
 
         // Vars used by the code in this page to do power controls.
-        let wheelPower    = {{ range(1, 4) | random }};
+        let wheelPower    = Math.floor(Math.random() * 3) + 1;  // Random [1, 4)
         let wheelSpinning = false;
 
         resetWheel()
@@ -81,7 +86,7 @@
                 }
 
                 // Disable the spin button so can't click again while wheel is spinning.
-                document.getElementById('spin_button').src       = "/static/images/spin_off.png";
+                document.getElementById('spin_button').src       = "static/images/spin_off.png";
                 document.getElementById('spin_button').className = "";
 
                 // Begin the spin animation by calling startAnimation on the wheel object.
@@ -105,7 +110,7 @@
             wheelSpinning = false;          // Reset to false to power buttons and spin can be clicked again.
 
             // Light up the spin button by changing it's source image and adding a clickable class to it.
-            document.getElementById('spin_button').src = "/static/images/spin_on.png";
+            document.getElementById('spin_button').src = "static/images/spin_on.png";
             document.getElementById('spin_button').className = "clickable";
         }
 
