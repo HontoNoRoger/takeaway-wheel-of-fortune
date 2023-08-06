@@ -22,6 +22,7 @@ div.spin_action {
     margin: auto;
     width: 50%;
     text-align: center;
+    scale: 2;
 }
 
 /* Do some css reset on selected elements */
